@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carolina Trigo · Backoffice de Produtos & UX Writer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────── */
+:root {
+  --ink:    #0C090A;
+  --ink2:   #120E0F;
+  --ink3:   #1A1416;
+  --card:   #150F11;
+  --rose:   #C2705A;
+  --rose2:  #E08F78;
+  --rose3:  #F5B8A4;
+  --cream:  #F2E4DC;
+  --text:   #D8CBC4;
+  --muted:  #7A6862;
+  --line:   rgba(194,112,90,.18);
+  --ff-d:   'Cormorant Garamond', serif;
+  --ff-b:   'Outfit', sans-serif;
+  --ff-m:   'JetBrains Mono', monospace;
+}
+/* LIGHT */
+html.light {
+  --ink:    #F5EDE9;
+  --ink2:   #EDE3DF;
+  --ink3:   #E0D4CF;
+  --card:   #FAF3F0;
+  --rose:   #8C3E28;
+  --rose2:  #A8522E;
+  --rose3:  #C46A40;
+  --cream:  #1A0800;
+  --text:   #1C0A06;
+  --muted:  #4A2E24;
+  --line:   rgba(140,62,40,.22);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--ff-b);font-size:16px;line-height:1.7;overflow-x:hidden;cursor:none;transition:background .35s,color .35s}
+
+/* ── CURSOR ─────────────────────────────────────────────────── */
+.cur{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference}
+.cur-dot{width:6px;height:6px;background:var(--rose2);border-radius:50%;transform:translate(-50%,-50%);transition:transform .1s}
+.cur-ring{width:36px;height:36px;border:1px solid var(--rose);border-radius:50%;transform:translate(-50%,-50%);transition:transform .12s,width .2s,height .2s,opacity .2s;opacity:.6}
+body:has(a:hover) .cur-ring{width:52px;height:52px;opacity:1}
+
+/* ── GRAIN ───────────────────────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:.5}
+
+/* ── THEME TOGGLE ────────────────────────────────────────────── */
+.theme-btn{display:flex;align-items:center;gap:.5rem;padding:.4rem .9rem;border:1px solid var(--line);border-radius:20px;background:transparent;color:var(--muted);font-family:var(--ff-m);font-size:.68rem;letter-spacing:.08em;cursor:pointer;transition:all .2s;white-space:nowrap}
+.theme-btn:hover{border-color:var(--rose);color:var(--rose)}
+.theme-icon{font-size:.85rem;transition:transform .35s}
+html.light .theme-icon{transform:rotate(180deg)}
+html.light nav{background:rgba(245,237,233,.97)!important;border-bottom:1px solid var(--line)}
+html.light .nav-name,.html.light .nav-links a{color:var(--muted)}
+html.light .nav-links a:hover,.html.light .nav-back:hover{color:var(--rose)}
+
+/* ── NAV ─────────────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:1.25rem 3rem;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(12,9,10,.95),transparent)}
+.nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+.nav-mono{width:32px;height:32px;border:1px solid var(--rose);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--ff-d);font-size:.85rem;color:var(--rose);font-weight:600}
+.nav-name{font-family:var(--ff-b);font-size:.78rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:2.5rem}
+.nav-links a{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:500}
+.nav-links a:hover{color:var(--rose2)}
+.nav-back{font-family:var(--ff-m);font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s;letter-spacing:.06em}
+.nav-back:hover{color:var(--rose)}
+
+/* ── HERO ─────────────────────────────────────────────────────── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding:8rem 3rem 5rem}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%, rgba(194,112,90,.07) 0%, transparent 70%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 70% at 60% 40%, black 0%, transparent 80%)}
+.hero-content{position:relative;max-width:1200px;margin:0 auto;width:100%}
+.hero-tag{font-family:var(--ff-m);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);margin-bottom:2rem;opacity:0;animation:up .7s .1s forwards}
+.hero-tag::before{content:'';display:inline-block;width:2rem;height:1px;background:var(--rose);margin-right:.75rem;vertical-align:middle}
+.hero-h1{font-family:var(--ff-d);font-size:clamp(3.5rem,8vw,8rem);font-weight:300;line-height:.95;margin-bottom:2rem;opacity:0;animation:up .7s .2s forwards}
+.hero-h1 strong{font-weight:700;display:block}
+.hero-h1 em{font-style:italic;color:var(--rose2)}
+.hero-desc{font-size:1rem;color:var(--muted);max-width:560px;margin-bottom:3.5rem;line-height:1.8;opacity:0;animation:up .7s .3s forwards}
+.hero-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem;opacity:0;animation:up .7s .35s forwards}
+.chip{font-family:var(--ff-m);font-size:.68rem;letter-spacing:.08em;padding:.3rem .9rem;border:1px solid var(--line);color:var(--muted);text-transform:uppercase}
+.chip.rose{border-color:rgba(194,112,90,.4);color:var(--rose)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,auto);gap:0;width:fit-content;border:1px solid var(--line);opacity:0;animation:up .7s .4s forwards}
+.hero-stat{padding:1.5rem 2.5rem;position:relative}
+.hero-stat+.hero-stat{border-left:1px solid var(--line)}
+.hero-stat-n{font-family:var(--ff-d);font-size:3rem;font-weight:700;color:var(--rose2);line-height:1}
+.hero-stat-l{font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:.3rem}
+.hero-scroll{position:absolute;bottom:3rem;left:3rem;display:flex;align-items:center;gap:.75rem;font-family:var(--ff-m);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:0;animation:up .7s .6s forwards}
+.hero-scroll::before{content:'';width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--rose));animation:pulse 2s infinite}
+
+/* ── DIVIDER ─────────────────────────────────────────────────── */
+.gold-line{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);opacity:.3}
+
+/* ── SECTIONS ────────────────────────────────────────────────── */
+.section{padding:7rem 3rem;max-width:1200px;margin:0 auto}
+.section-full{padding:7rem 0;background:var(--ink2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.section-full .inner{max-width:1200px;margin:0 auto;padding:0 3rem}
+.label{font-family:var(--ff-m);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem}
+.label::before{content:'';width:1.5rem;height:1px;background:var(--rose)}
+.display{font-family:var(--ff-d);font-size:clamp(2.2rem,5vw,4.5rem);font-weight:300;line-height:1.1;margin-bottom:2rem}
+.display strong{font-weight:700}
+.display em{font-style:italic;color:var(--rose2)}
+.body{font-size:.98rem;color:var(--muted);line-height:1.85;max-width:700px}
+.body+.body{margin-top:1rem}
+html.light .display em{color:var(--rose2)}
+html.light .body{color:var(--muted)}
+html.light .label{color:var(--rose)}
+html.light .label::before{background:var(--rose)}
+html.light .gold-line{background:linear-gradient(90deg,transparent,var(--rose),transparent)}
+
+/* ── PROBLEMA CARDS ─────────────────────────────────────────── */
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:3rem}
+.prob-card{background:var(--ink2);padding:2.25rem 2rem;position:relative;overflow:hidden;transition:background .3s}
+.prob-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--rose);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.prob-card:hover{background:var(--ink3)}
+.prob-card:hover::after{transform:scaleX(1)}
+.prob-num{font-family:var(--ff-d);font-size:4rem;font-weight:700;color:rgba(194,112,90,.12);line-height:1;margin-bottom:1rem}
+.prob-title{font-family:var(--ff-d);font-size:1.4rem;font-weight:600;margin-bottom:.75rem;color:var(--cream)}
+.prob-body{font-size:.875rem;color:var(--muted);line-height:1.75}
+html.light .prob-grid{background:var(--line)}
+html.light .prob-card{background:var(--ink2)}
+html.light .prob-card:hover{background:var(--ink3)}
+html.light .prob-title{color:var(--text)}
+html.light .prob-body{color:var(--muted)}
+html.light .prob-num{color:rgba(140,62,40,.18)}
+
+/* ── PROCESS / JOURNEY SECTION ──────────────────────────────── */
+.journey-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-top:3rem}
+.j-card{background:var(--ink2);padding:2rem 1.75rem;position:relative;overflow:hidden;transition:background .3s}
+.j-card:hover{background:var(--ink3)}
+.j-arrow{position:absolute;top:2rem;right:1.75rem;font-family:var(--ff-m);font-size:.7rem;color:var(--rose);opacity:.5}
+.j-step{font-family:var(--ff-m);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin-bottom:.75rem}
+.j-title{font-family:var(--ff-d);font-size:1.3rem;font-weight:600;color:var(--cream);margin-bottom:.6rem}
+.j-body{font-size:.82rem;color:var(--muted);line-height:1.7}
+.j-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:1rem}
+.j-tag{font-family:var(--ff-m);font-size:.6rem;padding:.2rem .55rem;border:1px solid var(--line);color:var(--muted);letter-spacing:.06em}
+html.light .journey-grid{background:var(--line)}
+html.light .j-card{background:var(--ink2)}
+html.light .j-card:hover{background:var(--ink3)}
+html.light .j-title{color:var(--text)}
+
+/* ── COPY / UX SECTION ──────────────────────────────────────── */
+.copy-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin-top:3rem}
+.copy-card{background:var(--card);padding:0;overflow:hidden}
+.copy-top{background:rgba(194,112,90,.07);border-bottom:1px solid var(--line);padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+.copy-fn{font-family:var(--ff-m);font-size:.8rem;color:var(--rose2);font-weight:500}
+.copy-badge{font-family:var(--ff-m);font-size:.62rem;letter-spacing:.08em;padding:.2rem .6rem;background:rgba(194,112,90,.1);color:var(--rose);text-transform:uppercase}
+.copy-body{padding:1.5rem}
+.copy-before,.copy-after{font-size:.85rem;line-height:1.65;padding:.75rem 1rem;border-radius:2px}
+.copy-before{background:rgba(255,255,255,.02);color:var(--muted);border-left:2px solid var(--muted);margin-bottom:.75rem}
+.copy-after{background:rgba(194,112,90,.06);color:var(--text);border-left:2px solid var(--rose)}
+.copy-lbl{font-family:var(--ff-m);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--rose);margin-bottom:.35rem}
+.copy-desc{padding:.85rem 1.5rem;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted);line-height:1.65}
+html.light .copy-card{background:var(--card)}
+html.light .copy-top{background:rgba(140,62,40,.08);border-color:var(--line)}
+html.light .copy-fn{color:var(--rose2)}
+html.light .copy-badge{background:rgba(140,62,40,.12);color:var(--rose)}
+html.light .copy-before{background:rgba(0,0,0,.03)}
+html.light .copy-after{background:rgba(140,62,40,.06)}
+html.light .copy-desc{color:var(--muted);border-color:var(--line)}
+
+/* ── DASHBOARD MOCKUP ───────────────────────────────────────── */
+.dash-frame{background:var(--card);border:1px solid var(--line);margin-top:3rem;overflow:hidden}
+.dash-titlebar{background:#0A0608;border-bottom:1px solid var(--line);padding:.7rem 1.25rem;display:flex;align-items:center;gap:.5rem}
+.dash-dot{width:9px;height:9px;border-radius:50%}
+.dash-title{font-family:var(--ff-m);font-size:.72rem;color:var(--muted);margin-left:.75rem;letter-spacing:.06em}
+.dash-ribbon{background:rgba(194,112,90,.08);border-bottom:1px solid var(--line);padding:.6rem 1.5rem;display:flex;align-items:center;gap:1.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dash-rb-item{font-family:var(--ff-m);font-size:.65rem;color:var(--muted);letter-spacing:.06em;padding:.25rem .6rem;cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap;flex-shrink:0}
+.dash-rb-item.on{color:var(--rose);border-bottom:1px solid var(--rose)}
+.dash-body{padding:1.25rem 1.5rem;overflow-x:hidden}
+.dash-view{display:none}
+.dash-view.on{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.kpi{background:var(--ink2);border:1px solid var(--line);padding:1rem 1.25rem;position:relative;overflow:hidden;text-align:center;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transition:opacity .3s,height .25s}
+.kpi.ka::before{background:var(--rose)}
+.kpi.kb::before{background:#5CA870}
+.kpi.kc::before{background:#5B8FC8}
+.kpi.kd::before{background:#C06060}
+.kpi:hover{transform:translateY(-2px);border-color:rgba(194,112,90,.3);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.kpi:hover::before,.kpi.active::before{height:3px;opacity:1}
+.kpi.active{border-color:rgba(194,112,90,.5);box-shadow:0 0 0 1px rgba(194,112,90,.2)}
+.kpi-l{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem}
+.kpi-v{font-family:var(--ff-d);font-size:1.9rem;font-weight:700;line-height:1}
+.kpi.ka .kpi-v{color:var(--rose2)}
+.kpi.kb .kpi-v{color:#7DC492}
+.kpi.kc .kpi-v{color:#7BB0E0}
+.kpi.kd .kpi-v{color:#D48080}
+.kpi-delta{font-size:.65rem;margin-top:.3rem}
+.up{color:#7DC492}
+.dn{color:#D48080}
+.kpi-detail{font-size:.62rem;color:var(--muted);margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--line);line-height:1.5;display:none;opacity:0;transition:opacity .2s;text-align:left}
+.kpi.active .kpi-detail{display:block;opacity:1}
+.charts-row{display:grid;grid-template-columns:2.2fr 1fr;gap:.75rem;margin-bottom:1rem}
+.chart-box{background:var(--ink2);border:1px solid var(--line);padding:1rem 1.25rem}
+.chart-title{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;font-weight:500;text-align:center}
+.bar-list{display:flex;flex-direction:column;gap:.5rem}
+.b-row{display:flex;align-items:center;gap:.75rem}
+.b-lbl{font-size:.68rem;color:var(--muted);width:90px;text-align:right;flex-shrink:0}
+.b-track{flex:1;background:rgba(255,255,255,.04);border-radius:1px;height:7px;overflow:hidden}
+.b-fill{height:100%;border-radius:1px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.b-val{font-family:var(--ff-m);font-size:.65rem;color:var(--muted);width:40px;text-align:right;flex-shrink:0}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem}
+.ring-legend{display:flex;gap:.75rem;font-size:.65rem;justify-content:center}
+.ring-legend span{display:flex;align-items:center;gap:.3rem}
+.ring-legend span::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.table-box{background:var(--ink2);border:1px solid var(--line);overflow:hidden}
+.t-head{display:grid;grid-template-columns:2fr 1fr 1fr;padding:.5rem 1.25rem;background:rgba(194,112,90,.05);border-bottom:1px solid var(--line)}
+.t-head span,.t-row span{font-size:.65rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;font-weight:500;text-align:center}
+.t-row{display:grid;grid-template-columns:2fr 1fr 1fr;padding:.55rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.t-row:last-child{border:none}
+.t-row span{color:var(--text);text-transform:none;font-size:.72rem;letter-spacing:0;font-weight:400;text-align:center}
+.t-row span:first-child{text-align:left}
+.pill{display:inline-block;font-family:var(--ff-m);font-size:.6rem;padding:.15rem .55rem;letter-spacing:.04em}
+.pill-ok{background:rgba(92,168,112,.15);color:#7DC492}
+.pill-warn{background:rgba(194,112,90,.15);color:var(--rose)}
+html.light .dash-frame{background:var(--card);border-color:var(--line)}
+html.light .dash-titlebar{background:#160A0E;border-color:var(--line)}
+html.light .dash-ribbon{background:rgba(140,62,40,.06);border-color:var(--line)}
+html.light .dash-rb-item{color:var(--muted)}
+html.light .dash-rb-item.on{color:var(--rose);border-color:var(--rose)}
+html.light .dash-body{background:var(--card)}
+html.light .kpi{background:var(--ink2);border-color:var(--line)}
+html.light .kpi.ka .kpi-v{color:var(--rose2)}
+html.light .kpi.kb .kpi-v{color:#165030}
+html.light .kpi.kc .kpi-v{color:#14406A}
+html.light .kpi.kd .kpi-v{color:#7A1A1A}
+html.light .kpi-detail{color:var(--muted);border-color:var(--line)}
+html.light .chart-box{background:var(--ink2);border-color:var(--line)}
+html.light .chart-title{color:var(--muted)}
+html.light .b-lbl,.html.light .b-val{color:var(--muted)}
+html.light .b-track{background:rgba(0,0,0,.12)}
+html.light .table-box{background:var(--ink2);border-color:var(--line)}
+html.light .t-head{background:rgba(140,62,40,.07);border-color:var(--line)}
+html.light .t-head span{color:var(--muted)}
+html.light .t-row{border-color:rgba(0,0,0,.05)}
+html.light .t-row span{color:var(--text)}
+html.light .pill-ok{background:rgba(22,80,48,.12);color:#165030}
+html.light .pill-warn{background:rgba(140,62,40,.12);color:var(--rose)}
+
+/* ── RESULTADO CARDS ─────────────────────────────────────────── */
+.result-scroll-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:3rem;padding-bottom:.5rem}
+.result-scroll-wrap::-webkit-scrollbar{height:4px}
+.result-scroll-wrap::-webkit-scrollbar-track{background:var(--line)}
+.result-scroll-wrap::-webkit-scrollbar-thumb{background:var(--rose);border-radius:2px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);min-width:600px}
+.r-card{background:var(--ink2);padding:2.5rem 2rem;position:relative;overflow:hidden;transition:background .3s;text-align:center}
+.r-card:hover{background:var(--ink3)}
+.r-num{font-family:var(--ff-d);font-size:4.5rem;font-weight:700;line-height:1;color:var(--rose2);margin-bottom:.5rem}
+.r-label{font-family:var(--ff-b);font-size:.82rem;font-weight:600;color:var(--cream);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em}
+.r-body{font-size:.875rem;color:var(--muted);line-height:1.7;max-width:380px;margin:0 auto}
+.r-card::before{content:attr(data-n);position:absolute;bottom:-1rem;right:1rem;font-family:var(--ff-d);font-size:8rem;font-weight:700;color:rgba(194,112,90,.04);line-height:1;pointer-events:none}
+.r-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);opacity:.3}
+html.light .result-grid{background:var(--line)}
+html.light .r-card{background:var(--ink2)}
+html.light .r-card:hover{background:var(--ink3)}
+html.light .r-num{color:var(--rose2)}
+html.light .r-label{color:var(--text)}
+html.light .r-body{color:var(--muted)}
+
+/* ── STACK ───────────────────────────────────────────────────── */
+.stack-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem}
+.stack-col-title{font-family:var(--ff-m);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--line);text-align:center}
+.stack-item{font-size:.875rem;color:var(--muted);padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;align-items:center;gap:.75rem;justify-content:center}
+.stack-item::before{content:'';width:4px;height:4px;background:var(--rose);border-radius:50%;flex-shrink:0;opacity:.6}
+html.light .stack-col-title{color:var(--rose);border-color:var(--line)}
+html.light .stack-item{color:var(--muted);border-bottom-color:rgba(0,0,0,.07)}
+html.light .stack-item::before{background:var(--rose)}
+
+/* ── CTA ─────────────────────────────────────────────────────── */
+.cta-wrap{text-align:center;padding:8rem 3rem;background:var(--ink2);border-top:1px solid var(--line)}
+.cta-wrap .display{margin:0 auto 1.5rem}
+.cta-wrap .body{margin:0 auto 2.5rem}
+.btn-row{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2.25rem;font-family:var(--ff-m);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .25s;cursor:none}
+.btn-rose{background:var(--rose);color:var(--ink);font-weight:600}
+.btn-rose:hover{background:var(--rose2)}
+.btn-ghost{border:1px solid var(--line);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--rose);color:var(--rose)}
+html.light .cta-wrap{background:var(--ink2);border-color:var(--line)}
+html.light .btn-rose{background:var(--rose);color:#FAF5EE}
+html.light .btn-rose:hover{background:var(--rose2)}
+html.light .btn-ghost{border-color:var(--line);color:var(--muted)}
+html.light .btn-ghost:hover{border-color:var(--rose);color:var(--rose)}
+
+/* ── SCROLL REVEAL ───────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .75s ease,transform .75s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ── ANIMATIONS ──────────────────────────────────────────────── */
+@keyframes up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  .hero,.section{padding-left:1.5rem;padding-right:1.5rem}
+  .section-full .inner{padding:0 1.5rem}
+  .hero-stats,.prob-grid,.journey-grid,.stack-cols,.charts-row,.copy-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .b-lbl{width:70px}
+  .dash-body{padding:.85rem 1rem}
+  .theme-btn span:last-child{display:none}
+}
+@media(max-width:500px){
+  .kpi-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cur"><div class="cur-dot" id="cd"></div></div>
+<div class="cur" style="position:fixed"><div class="cur-ring" id="cr"></div></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-mono">C</div>
+    <span class="nav-name">Carolina Trigo</span>
+  </a>
+  <div class="nav-links">
+    <a href="#desafio">Trajetória</a>
+    <a href="#processo">Processo</a>
+    <a href="#copy">UX Writing</a>
+    <a href="#resultados">Resultados</a>
+    <a href="#contato">Contato</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:1.25rem">
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" aria-label="Alternar tema">
+      <span class="theme-icon" id="theme-icon">☀</span>
+      <span id="theme-label">Modo Claro</span>
+    </button>
+    <a href="https://github.com/CarolinaNTrigo" target="_blank" class="nav-back">← Portfólio</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Backoffice · Produto · UX Writing</div>
+    <h1 class="hero-h1">
+      <strong>Processos</strong>
+      <em>sem atrito.</em>
+    </h1>
+    <div class="hero-chips">
+      <span class="chip rose">Onboarding</span>
+      <span class="chip rose">ERP · PDV</span>
+      <span class="chip rose">Content Design</span>
+      <span class="chip">Implantação</span>
+      <span class="chip">SQL Server</span>
+      <span class="chip">Documentação Funcional</span>
+      <span class="chip">Jira · Movidesk</span>
+    </div>
+    <p class="hero-desc">
+      Mais de 10 anos conectando produto, operação e cliente — do kick-off ao onboarding, da parametrização ao manual que as pessoas realmente leem.
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-n" id="c1">0</div>
+        <div class="hero-stat-l">Anos de experiência</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" id="c2">0</div>
+        <div class="hero-stat-l">Implantações ERP/PDV</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" id="c3">0+</div>
+        <div class="hero-stat-l">Colaboradores gerenciados</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll"><div></div><span>Explorar</span></div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- TRAJETÓRIA -->
+<section class="section" id="desafio">
+  <div class="label reveal">01 &nbsp;Trajetória</div>
+  <h2 class="display reveal">O que <strong>cada empresa <em>ganhou</em></strong> com minha chegada</h2>
+  <p class="body reveal">
+    Cada empresa que passei tinha um problema parecido: dados existiam, processos existiam — mas ninguém conseguia usá-los com clareza. Entrei para conectar os pontos.
+  </p>
+  <div class="prob-grid reveal">
+    <div class="prob-card">
+      <div class="prob-num">01</div>
+      <div class="prob-title">GCOM Software</div>
+      <p class="prob-body">Implantação de ERP e PDV no varejo food service. Conduzi kick-offs, parametrizei sistemas, produzi manuais funcionais e treinei equipes — reduzindo o atrito de onboarding e aumentando a adoção do produto.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num">02</div>
+      <div class="prob-title">Gedanken GCertifica</div>
+      <p class="prob-body">Startup de cadastro e homologação. Estruturei o processo de onboarding, criei documentação funcional para reduzir dúvidas recorrentes e participei de sprints semanais com time de produto.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num">03</div>
+      <div class="prob-title">Atacadão</div>
+      <p class="prob-body">Gestão de equipe multidisciplinar com 300+ colaboradores. Implantei melhorias de processo, desenvolvi dashboards de acompanhamento e criei relatórios para auditorias internas e externas.</p>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- PROCESSO / JORNADA -->
+<section class="section-full" id="processo">
+  <div class="inner">
+    <div class="label reveal">02 &nbsp;Como trabalho</div>
+    <h2 class="display reveal">Do caos <strong>ao fluxo <em>documentado</em></strong></h2>
+    <p class="body reveal">Minha metodologia é consistente: entender o problema real, mapear o fluxo existente, redesenhar com clareza, documentar para que qualquer pessoa consiga executar.</p>
+    <div class="journey-grid reveal">
+      <div class="j-card">
+        <div class="j-step">Fase 01</div>
+        <div class="j-arrow">→</div>
+        <div class="j-title">Discovery</div>
+        <p class="j-body">Kick-off com stakeholders, mapeamento do processo As-Is, identificação de gargalos e dores reais do usuário final.</p>
+        <div class="j-tags">
+          <span class="j-tag">Entrevistas</span>
+          <span class="j-tag">SWOT</span>
+          <span class="j-tag">As-Is Map</span>
+        </div>
+      </div>
+      <div class="j-card">
+        <div class="j-step">Fase 02</div>
+        <div class="j-arrow">→</div>
+        <div class="j-title">Estruturação</div>
+        <p class="j-body">Parametrização do sistema, definição de RACI, desenho do fluxo To-Be com responsáveis e prazos mapeados.</p>
+        <div class="j-tags">
+          <span class="j-tag">RACI</span>
+          <span class="j-tag">GANTT</span>
+          <span class="j-tag">To-Be Map</span>
+        </div>
+      </div>
+      <div class="j-card">
+        <div class="j-step">Fase 03</div>
+        <div class="j-arrow">→</div>
+        <div class="j-title">Implementação</div>
+        <p class="j-body">Onboarding guiado, treinamentos, homologação com correção de inconsistências antes da liberação para produção.</p>
+        <div class="j-tags">
+          <span class="j-tag">Treinamento</span>
+          <span class="j-tag">Homologação</span>
+          <span class="j-tag">SQL</span>
+        </div>
+      </div>
+      <div class="j-card">
+        <div class="j-step">Fase 04</div>
+        <div class="j-title">Documentação</div>
+        <p class="j-body">Manual funcional, guias de uso, microcopy de interface e dashboards de acompanhamento para garantir sustentabilidade.</p>
+        <div class="j-tags">
+          <span class="j-tag">Manuais</span>
+          <span class="j-tag">Microcopy</span>
+          <span class="j-tag">Dashboards</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- UX WRITING / COPY -->
+<section class="section" id="copy">
+  <div class="label reveal">03 &nbsp;UX Writing</div>
+  <h2 class="display reveal">Palavras que <strong>reduzem <em>atrito</em></strong></h2>
+  <p class="body reveal">
+    UX Writing não é só escrever bonito — é eliminar a dúvida antes que ela apareça. Cada exemplo abaixo foi baseado em situações reais de onboarding e operação.
+  </p>
+  <div class="copy-grid reveal">
+    <div class="copy-card">
+      <div class="copy-top">
+        <span class="copy-fn">Mensagem de Erro — ERP</span>
+        <span class="copy-badge">Microcopy</span>
+      </div>
+      <div class="copy-body">
+        <div class="copy-lbl">Antes</div>
+        <div class="copy-before">Erro 403: Acesso negado. Contate o administrador do sistema.</div>
+        <div class="copy-lbl">Depois</div>
+        <div class="copy-after">Você não tem permissão para esta ação. Peça ao seu gestor para liberar seu acesso em Configurações → Perfis.</div>
+      </div>
+      <div class="copy-desc">Substituição de código técnico por orientação acionável — o usuário sabe exatamente o que fazer a seguir.</div>
+    </div>
+    <div class="copy-card">
+      <div class="copy-top">
+        <span class="copy-fn">Tela de Onboarding — Plataforma</span>
+        <span class="copy-badge">Onboarding</span>
+      </div>
+      <div class="copy-body">
+        <div class="copy-lbl">Antes</div>
+        <div class="copy-before">Bem-vindo ao sistema. Por favor, preencha todos os campos obrigatórios para continuar.</div>
+        <div class="copy-lbl">Depois</div>
+        <div class="copy-after">Vamos configurar sua conta em 3 minutos. Primeiro: qual é o CNPJ da sua empresa?</div>
+      </div>
+      <div class="copy-desc">Tom humano, expectativa de tempo definida, foco em uma ação por vez — reduz abandono no primeiro acesso.</div>
+    </div>
+    <div class="copy-card">
+      <div class="copy-top">
+        <span class="copy-fn">Botão de Confirmação — Fluxo Crítico</span>
+        <span class="copy-badge">Content Design</span>
+      </div>
+      <div class="copy-body">
+        <div class="copy-lbl">Antes</div>
+        <div class="copy-before">Confirmar</div>
+        <div class="copy-lbl">Depois</div>
+        <div class="copy-after">Sim, enviar pedido agora</div>
+      </div>
+      <div class="copy-desc">Botões de ação devem descrever o que acontece — não confirmar uma abstração. Reduz cliques acidentais.</div>
+    </div>
+    <div class="copy-card">
+      <div class="copy-top">
+        <span class="copy-fn">E-mail de Ativação — Pós Cadastro</span>
+        <span class="copy-badge">Comunicação</span>
+      </div>
+      <div class="copy-body">
+        <div class="copy-lbl">Antes</div>
+        <div class="copy-before">Sua conta foi criada. Clique no link abaixo para ativar.</div>
+        <div class="copy-lbl">Depois</div>
+        <div class="copy-after">Sua conta está quase pronta! Clique para confirmar o e-mail e começar a usar em menos de 1 minuto.</div>
+      </div>
+      <div class="copy-desc">Progressão positiva, urgência suave e expectativa de tempo aumentam a taxa de ativação.</div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- DASHBOARD MOCKUP -->
+<section class="section-full" id="dashboard">
+  <div class="inner">
+    <div class="label reveal">04 &nbsp;Operação com dados</div>
+    <h2 class="display reveal">Visibilidade <strong>em tempo <em>real</em></strong></h2>
+    <p class="body reveal">Exemplo de dashboard operacional construído para acompanhamento de implantações — volume de clientes, SLA de onboarding, taxa de retrabalho e lead time de ativação.</p>
+
+    <div class="dash-frame reveal">
+      <div class="dash-titlebar">
+        <div class="dash-dot" style="background:#FF5F57"></div>
+        <div class="dash-dot" style="background:#FEBC2E"></div>
+        <div class="dash-dot" style="background:#28C840"></div>
+        <span class="dash-title">Ops Analytics · Backoffice de Produtos · Dashboard de Implantação</span>
+      </div>
+      <div class="dash-ribbon">
+        <span class="dash-rb-item on" onclick="switchView('geral',this)">Visão Geral</span>
+        <span class="dash-rb-item" onclick="switchView('cliente',this)">Por Cliente</span>
+        <span class="dash-rb-item" onclick="switchView('sla',this)">SLA Onboarding</span>
+      </div>
+      <div class="dash-body">
+        <!-- VISÃO GERAL -->
+        <div class="dash-view on" id="dv-geral">
+          <div class="kpi-row" id="kpi-row">
+            <div class="kpi ka" onclick="toggleKpi(this)" data-val="47" data-sfx="" data-dur="900">
+              <div class="kpi-l">Clientes Ativos</div>
+              <div class="kpi-v" id="kv0">0</div>
+              <div class="kpi-delta up">↑ 8 novos este mês</div>
+              <div class="kpi-detail">Total de clientes com implantação em andamento ou concluída. Crescimento de 20% em relação ao trimestre anterior.</div>
+            </div>
+            <div class="kpi kb" onclick="toggleKpi(this)" data-val="94.2" data-sfx="%" data-dur="1200">
+              <div class="kpi-l">SLA Onboarding</div>
+              <div class="kpi-v" id="kv1">0%</div>
+              <div class="kpi-delta up">↑ Meta: 90%</div>
+              <div class="kpi-detail">Percentual de clientes que completaram o onboarding dentro do prazo acordado. Medido da assinatura ao primeiro uso ativo.</div>
+            </div>
+            <div class="kpi kc" onclick="toggleKpi(this)" data-val="3.8" data-sfxd="d" data-dur="800">
+              <div class="kpi-l">Lead Time Ativação</div>
+              <div class="kpi-v" id="kv2">0d</div>
+              <div class="kpi-delta up">↓ -0.5d vs mês anterior</div>
+              <div class="kpi-detail">Tempo médio entre o kick-off e a ativação do cliente em produção. Redução de 0,5 dias após automação de parametrização.</div>
+            </div>
+            <div class="kpi kd" onclick="toggleKpi(this)" data-val="4.1" data-sfx="%" data-dur="700">
+              <div class="kpi-l">Taxa Retrabalho</div>
+              <div class="kpi-v" id="kv3">0%</div>
+              <div class="kpi-delta up">Abaixo do limite 5%</div>
+              <div class="kpi-detail">Proporção de configurações que precisaram de correção após homologação. Threshold de alerta: 5%.</div>
+            </div>
+          </div>
+          <div class="charts-row">
+            <div class="chart-box">
+              <div class="chart-title">SLA por Tipo de Cliente</div>
+              <div class="bar-list">
+                <div class="b-row"><span class="b-lbl">Food Service</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="98"></div></div><span class="b-val">98%</span></div>
+                <div class="b-row"><span class="b-lbl">Varejo</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="95"></div></div><span class="b-val">95%</span></div>
+                <div class="b-row"><span class="b-lbl">Startup</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="91"></div></div><span class="b-val">91%</span></div>
+                <div class="b-row"><span class="b-lbl">Franquia</span><div class="b-track"><div class="b-fill" style="width:0;background:var(--rose2)" data-w="85"></div></div><span class="b-val">85%</span></div>
+                <div class="b-row"><span class="b-lbl">Atacado</span><div class="b-track"><div class="b-fill" style="width:0;background:var(--rose2)" data-w="79"></div></div><span class="b-val">79%</span></div>
+              </div>
+            </div>
+            <div class="chart-box">
+              <div class="chart-title">Status Geral SLA</div>
+              <div class="ring-wrap">
+                <svg viewBox="0 0 110 110" width="100" height="100">
+                  <circle cx="55" cy="55" r="40" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="16"/>
+                  <circle cx="55" cy="55" r="40" fill="none" stroke="#7DC492" stroke-width="16" stroke-dasharray="237 251" stroke-dashoffset="63" stroke-linecap="butt"/>
+                  <circle cx="55" cy="55" r="40" fill="none" stroke="var(--rose)" stroke-width="16" stroke-dasharray="14 251" stroke-dashoffset="-174"/>
+                  <text x="55" y="50" text-anchor="middle" fill="var(--rose2)" font-size="14" font-weight="700" font-family="Cormorant Garamond,serif">94.2%</text>
+                  <text x="55" y="63" text-anchor="middle" fill="#6E7585" font-size="7.5" font-family="Outfit,sans-serif">dentro SLA</text>
+                </svg>
+                <div class="ring-legend">
+                  <span style="color:#7DC492">Dentro</span>
+                  <span style="color:var(--rose)">Fora</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- POR CLIENTE -->
+        <div class="dash-view" id="dv-cliente">
+          <div class="table-box">
+            <div class="t-head"><span>Cliente</span><span>Fase</span><span>SLA</span></div>
+            <div class="t-row"><span>Rede Alpha Food</span><span>Produção</span><span><span class="pill pill-ok">No prazo</span></span></div>
+            <div class="t-row"><span>Mercado Beta</span><span>Homologação</span><span><span class="pill pill-ok">No prazo</span></span></div>
+            <div class="t-row"><span>Franquia Gama</span><span>Parametrização</span><span><span class="pill pill-warn">Atenção</span></span></div>
+            <div class="t-row"><span>StartupDelta</span><span>Onboarding</span><span><span class="pill pill-ok">No prazo</span></span></div>
+            <div class="t-row"><span>Grupo Epsilon</span><span>Kick-off</span><span><span class="pill pill-ok">No prazo</span></span></div>
+          </div>
+          <div style="margin-top:.5rem;font-size:.65rem;color:var(--muted);font-family:var(--ff-m);text-align:center">Atualizado em tempo real · Fonte: SQL Server + Movidesk</div>
+        </div>
+        <!-- SLA ONBOARDING -->
+        <div class="dash-view" id="dv-sla">
+          <div class="chart-box" style="margin-bottom:.75rem">
+            <div class="chart-title">Lead Time por Fase (dias)</div>
+            <div class="bar-list">
+              <div class="b-row"><span class="b-lbl">Kick-off</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="15"></div></div><span class="b-val">0.5d</span></div>
+              <div class="b-row"><span class="b-lbl">Parametrização</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="45"></div></div><span class="b-val">1.5d</span></div>
+              <div class="b-row"><span class="b-lbl">Homologação</span><div class="b-track"><div class="b-fill" style="width:0;background:var(--rose2)" data-w="70"></div></div><span class="b-val">2.3d</span></div>
+              <div class="b-row"><span class="b-lbl">Treinamento</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="30"></div></div><span class="b-val">1.0d</span></div>
+              <div class="b-row"><span class="b-lbl">Go-live</span><div class="b-track"><div class="b-fill" style="width:0;background:#7DC492" data-w="10"></div></div><span class="b-val">0.3d</span></div>
+            </div>
+          </div>
+          <div style="font-size:.65rem;color:var(--muted);font-family:var(--ff-m);text-align:center">Homologação é o gargalo principal — foco de melhoria contínua</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- RESULTADOS -->
+<section class="section" id="resultados">
+  <div class="label reveal">05 &nbsp;Resultado</div>
+  <h2 class="display reveal">Impacto <strong>em números <em>reais</em></strong></h2>
+  <p class="body reveal">Cada número abaixo representa uma entrega concreta — não estimativas, não promessas.</p>
+  <div class="result-scroll-wrap">
+    <div class="result-grid reveal">
+      <div class="r-card" data-n="10+">
+        <div class="r-num" data-to="10" data-sfx="+">0</div>
+        <div class="r-label">Anos de experiência</div>
+        <p class="r-body">Backoffice, implantação, customer success, gestão de equipe e documentação funcional em setores variados.</p>
+      </div>
+      <div class="r-card" data-n="300+">
+        <div class="r-num" data-to="300" data-sfx="+">0</div>
+        <div class="r-label">Colaboradores gerenciados</div>
+        <p class="r-body">Gestão de equipe multidisciplinar no Atacadão, com treinamentos, avaliações de desempenho e indicadores.</p>
+      </div>
+      <div class="r-card" data-n="2">
+        <div class="r-num" data-to="2" data-sfx="">0</div>
+        <div class="r-label">Startups de produto</div>
+        <p class="r-body">Atuação em GCOM e Gedanken GCertifica com implantação de ERP, PDV e plataformas de homologação.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- STACK -->
+<section class="section-full" id="stack">
+  <div class="inner">
+    <div class="label reveal">06 &nbsp;Stack técnica</div>
+    <h2 class="display reveal">Ferramentas que <strong><em>uso</em> de verdade</strong></h2>
+    <div class="stack-cols reveal">
+      <div>
+        <div class="stack-col-title">Backoffice & Dados</div>
+        <div class="stack-item">SQL Server</div>
+        <div class="stack-item">Excel Avançado</div>
+        <div class="stack-item">Jira</div>
+        <div class="stack-item">Movidesk</div>
+        <div class="stack-item">Hubspot</div>
+        <div class="stack-item">Trello · ClickUp</div>
+      </div>
+      <div>
+        <div class="stack-col-title">Produto & UX Writing</div>
+        <div class="stack-item">Content Design</div>
+        <div class="stack-item">Microcopy</div>
+        <div class="stack-item">Jornada do Usuário</div>
+        <div class="stack-item">Documentação Funcional</div>
+        <div class="stack-item">Onboarding Design</div>
+        <div class="stack-item">Tom de Voz</div>
+      </div>
+      <div>
+        <div class="stack-col-title">Sistemas & Métodos</div>
+        <div class="stack-item">Totvs Microsiga</div>
+        <div class="stack-item">Everest · Tasy · Tecknisa</div>
+        <div class="stack-item">Oracle</div>
+        <div class="stack-item">Scrum · Kanban</div>
+        <div class="stack-item">Lean · Kaizen</div>
+        <div class="stack-item">ISO/IEC 27001</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- CTA / CONTATO -->
+<div class="cta-wrap" id="contato">
+  <div class="label" style="justify-content:center">Vamos conversar?</div>
+  <h2 class="display" style="text-align:center;max-width:700px;margin:0 auto 1.5rem">
+    Comunicação clara,<br><strong>operação <em>sem atrito</em></strong>
+  </h2>
+  <p class="body" style="text-align:center">
+    Se você precisa de alguém que entende o produto, fala com o cliente e documenta o processo — estou disponível para novas oportunidades em São Paulo.
+  </p>
+  <div class="btn-row" style="margin-top:2.5rem">
+    <a href="https://www.linkedin.com/in/carolina-nunes-trigo" target="_blank" class="btn btn-rose">linkedin.com/in/carolina-nunes-trigo</a>
+    <a href="mailto:carolinna.nunes@gmail.com" class="btn btn-ghost">carolinna.nunes@gmail.com</a>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+/* Cursor */
+const cd=document.getElementById('cd'),cr=document.getElementById('cr');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+function animCur(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;cd.style.cssText=`transform:translate(${mx}px,${my}px) translate(-50%,-50%)`;cr.style.cssText=`transform:translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(animCur)}
+animCur();
+
+/* Hero counters */
+function countTo(el,target,suffix,dur=1400){
+  const isFloat=!Number.isInteger(target);
+  const start=performance.now();
+  function step(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    const val=isFloat?(ease*target).toFixed(1):Math.round(ease*target);
+    el.textContent=val+suffix;
+    if(p<1)requestAnimationFrame(step);
+  }requestAnimationFrame(step);
+}
+setTimeout(()=>{
+  countTo(document.getElementById('c1'),10,'+',1200);
+  countTo(document.getElementById('c2'),15,'+',1400);
+  countTo(document.getElementById('c3'),300,'+',1600);
+},600);
+
+/* KPI counter on viewport */
+let kpiAnimated=false;
+const kpiObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&!kpiAnimated){kpiAnimated=true;
+  const cards=document.querySelectorAll('.kpi[data-val]');
+  cards.forEach((card,i)=>{
+    const el=card.querySelector('.kpi-v');
+    const val=parseFloat(card.dataset.val);
+    const sfx=card.dataset.sfx||(card.dataset.sfxd||'');
+    const dur=parseInt(card.dataset.dur)||1000;
+    setTimeout(()=>countTo(el,val,sfx,dur),i*120);
+  });}})},{threshold:.3});
+const kpiRow=document.getElementById('kpi-row');
+if(kpiRow)kpiObs.observe(kpiRow);
+
+/* KPI toggle */
+function toggleKpi(card){const isActive=card.classList.contains('active');document.querySelectorAll('.kpi').forEach(k=>k.classList.remove('active'));if(!isActive)card.classList.add('active');}
+
+/* Result counters */
+let resultAnimated=false;
+const resultObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting&&!resultAnimated){resultAnimated=true;
+  document.querySelectorAll('.r-num[data-to]').forEach((el,i)=>{
+    const target=parseFloat(el.dataset.to);
+    const sfx=el.dataset.sfx||'';
+    setTimeout(()=>countTo(el,target,sfx,1000),i*180);
+  });}})},{threshold:.2});
+const rGrid=document.querySelector('.result-grid');
+if(rGrid)resultObs.observe(rGrid);
+
+/* Dashboard ribbon */
+function resetBars(viewEl){if(!viewEl)return;setTimeout(()=>{viewEl.querySelectorAll('.b-fill').forEach(b=>{const t=b.dataset.w;if(!t)return;b.style.width=0;requestAnimationFrame(()=>{b.style.width=t+'%'});});},60);}
+function switchView(id,el){
+  document.querySelectorAll('[id^="dv-"]').forEach(v=>v.classList.remove('on'));
+  el.closest('.dash-ribbon').querySelectorAll('.dash-rb-item').forEach(t=>t.classList.remove('on'));
+  const view=document.getElementById('dv-'+id);
+  if(view){view.classList.add('on');resetBars(view);}
+  el.classList.add('on');
+}
+
+/* Bar animations on scroll */
+const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.b-fill').forEach(b=>{const t=b.dataset.w;if(!t)return;b.style.width=0;requestAnimationFrame(()=>{b.style.width=t+'%'});});}});},{threshold:.3});
+document.querySelectorAll('.chart-box').forEach(el=>barObs.observe(el));
+
+/* Scroll reveal */
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* Theme toggle */
+function toggleTheme(){
+  const isLight=document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent=isLight?'☀':'☽';
+  document.getElementById('theme-label').textContent=isLight?'Modo Escuro':'Modo Claro';
+}
+</script>
+</body>
+</html>
